@@ -1,0 +1,31 @@
+.header {
+  display: flex;
+  align-items: center;
+  width: var(--width);
+  justify-content: space-between;
+
+  h1 {
+    letter-spacing: 0.4em;
+  }
+
+  label {
+    cursor: pointer;
+  }
+
+  input {
+    display: none;
+  }
+
+  div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 30vh;
+    height: 30svh;
+    width: 100%;
+    background-image: var(--background-url);
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -1;
+  }
+}
