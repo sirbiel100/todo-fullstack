@@ -2,8 +2,8 @@
 import { TodoItem } from '@/types/todoInterface';
 import { AudioContext } from '../audio/audio';
 import { useContext, useEffect, useState } from 'react';
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { closestCenter, DndContext, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove  } from '@dnd-kit/sortable';
+import { closestCenter, DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import List from '../list/list';
 import style from './todo.module.scss';
 import PlayAudio from '@/utils/playAudio';

@@ -1,6 +1,6 @@
 import { TodoItem } from "@/types/todoInterface";
 import style from "./list.module.scss";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import Task from "../task/task";
 
 export default function List({ tasks, deleteRequest, changeChecked, filter, onHover }: { tasks: TodoItem[], deleteRequest: (id: string) => void, changeChecked: (id: string, checked: boolean) => void, filter: { active: boolean, completed: boolean }, onHover: () => void }) {
