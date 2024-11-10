@@ -3,7 +3,7 @@ import { TodoItem } from '@/types/todoInterface';
 import { AudioContext } from '../audio/audio';
 import { useContext, useEffect, useState } from 'react';
 import { arrayMove  } from '@dnd-kit/sortable';
-import { closestCenter, DndContext, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { closestCenter, DndContext, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import List from '../list/list';
 import style from './todo.module.scss';
 import PlayAudio from '@/utils/playAudio';
@@ -120,16 +120,16 @@ export default function ToDo() {
         fecthData()
     }, [])
 
-    const handleDragEnd = (event: any) => {
+    const handleDragEnd = (event: DragEndEvent) => {
         setTimeout(() => setIsDragging(false), 500)
         const { active, over } = event
         const getTaskPos = (id: string) => data.findIndex(e => e.id === id)
 
-        if (active.id === over.id) return
+        if (!over || active.id === over.id) return
 
         setData(prevData => {
-            const originalIndex = getTaskPos(active.id)
-            const newIndex = getTaskPos(over.id)
+            const originalIndex = getTaskPos(active.id as string)
+            const newIndex = getTaskPos(over.id as string)
             const reorderedItems = arrayMove(prevData, originalIndex, newIndex);
 
             // Update positions in the backend
