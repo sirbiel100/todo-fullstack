@@ -13,6 +13,7 @@ export default function Header() {
     
     // Initialize darkMode based on the stored color scheme in localStorage
     const [darkMode, setDarkMode] = useState<boolean>(() => {
+        if(typeof window === 'undefined') return false;
         return localStorage.getItem('colorScheme') === 'dark';
     });
 
