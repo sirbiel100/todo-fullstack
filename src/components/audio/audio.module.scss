@@ -1,0 +1,23 @@
+.audioStyle{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 100%;
+    top: 2%;
+    transform: translate(-150%, 0);
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    background-color: var(--container-background-color);
+    box-shadow: 0 0 0.5em 0.1em var(--box-shadow-color);
+    cursor: pointer;
+    
+    svg{
+        width: 1em;
+        height: auto;
+        object-fit: contain;
+        filter: invert(10) grayscale(0.5) brightness(0.5);
+    }
+}

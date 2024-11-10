@@ -40,6 +40,7 @@
       background-color: transparent;
       font-weight: 700;
       font-size: clamp(0.75em, 0.5vw + 0.5em, 1em);
+      caret-color: var(--showAll-color);
       &::placeholder {
         font-weight: 400;
       }
@@ -57,115 +58,20 @@
       display: flex;
       flex-direction: column;
       color: var(--text-color);
+      overflow: hidden;
       box-shadow: 0 7em 5em 0 var(--box-shadow-color);
-
-      li {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 1em;
-        border-bottom: 1px solid var(--completed-task);
-        height: 3em;
-        padding: 2em 1.5em;
-        transition: all 0.3s ease;
-        position: relative;
-
-        input {
-          display: none;
-        }
-
-        p {
-          position: relative;
-          max-width: 75%;
-          div {
-            display: none;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translate(0, -50%) scaleX(0);
-            width: 100%;
-            height: 0.1em;
-            background-color: var(--completed-task);
-            transform-origin: left;
-            transition: all 0.3s ease;
-          }
-        }
-
-        & > svg {
-          cursor: pointer;
-          position: absolute;
-          left: 90%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-        }
-
-        label {
-          position: relative;
-          cursor: pointer;
-          div {
-            width: 1.5em;
-            height: 1.5em;
-            border: 1px solid var(--completed-task);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            &::after {
-              content: "";
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              background: linear-gradient(135deg, #57ddff, #c058f3);
-              width: 100%;
-              height: 100%;
-              border-radius: 50%;
-              opacity: 0;
-              transition: all 0.3s ease;
-            }
-          }
-
-          svg {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            opacity: 0;
-          }
-        }
-
-        &:has(input:checked) {
-          color: var(--completed-task);
-          text-decoration: line-through;
-          p div {
-            transform: translate(0, -50%) scaleX(1);
-          }
-          label {
-            div {
-              position: relative;
-              z-index: 0;
-              border: transparent;
-              overflow: hidden;
-
-              &::after {
-                opacity: 1;
-              }
-            }
-            svg {
-              opacity: 1;
-            }
-          }
-        }
-      }
     }
 
     section {
       display: flex;
       flex-direction: column;
+      position: relative;
       gap: 1em;
       color: var(--filter-font-color);
 
       button {
         font-size: inherit;
+        cursor: pointer;
       }
 
       div {
@@ -183,17 +89,27 @@
         align-items: center;
         justify-content: space-evenly;
         background-color: var(--container-background-color);
+        position: absolute;
+        top: 150%;
+        left: 50%;
+        width: 100%;
+        transform: translate(-50%, 0);
         padding: 1em 1.5em;
         font-weight: 700;
         border-radius: 0.25em;
-        li:first-child {
-          color: var(--showAll-color) !important;
+        li {
+          cursor: pointer;
+          &:first-child {
+            color: var(--showAll-color) !important;
+          }
         }
       }
     }
   }
 
   footer {
+    position: relative;
+    transform: translateY(100%);
     width: 100%;
     padding: 1em 1.5em;
     font-weight: 400;
@@ -204,18 +120,11 @@
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-  .todoSection section ul li:hover {
-    cursor: pointer;
+  .todoSection main section button:hover {
     color: var(--text-color-hover);
   }
-
-  .todoSection main ul li > svg {
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-
-  .todoSection main ul li:hover > svg {
-    opacity: 1;
+  .todoSection main section li:hover {
+    color: var(--text-color-hover);
   }
 }
 
@@ -229,6 +138,9 @@
       section {
         div {
           ul {
+            position: static;
+            transform: none;
+            width: auto;
             display: flex;
             align-items: center;
             gap: 1.5em;
@@ -236,27 +148,20 @@
         }
       }
     }
+
+    footer {
+      transform: translateY(0);
+    }
   }
 }
 
 //Extra extra large devices (larger desktops, 1400px and up)
 @media screen and (min-width: 87.5em) {
-  .todoSection {  
+  .todoSection {
     main {
       ul:nth-child(1) {
         box-shadow: 0 8em 2em -1em var(--box-shadow-color);
-        li {  
-          p {
-            div {
-              display: block;
-            }
-          }
-          &:has(input:checked) {
-            text-decoration: none;
-          }
-        }
       }
     }
   }
-  
 }

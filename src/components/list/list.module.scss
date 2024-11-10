@@ -1,0 +1,28 @@
+.hide {
+  transform: scale(0);
+  background-color: var(--completed-task);
+  transition: color 0.3s, transform 0.3s ease;
+  transform-origin: right center;
+}
+
+.list {
+  transform: scale(1);
+  transition: color 0.3s, transform 0.3s ease;
+  transform-origin: left center;
+  touch-action: none;
+  cursor: default;
+}
+
+/* Enable hover only on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .list:hover {
+    cursor: pointer;
+    color: var(--text-color-hover);
+    scale: 1.02;
+  }
+
+  .list:hover > div > div:last-child svg {
+    opacity: 1;
+  }
+
+}

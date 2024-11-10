@@ -1,0 +1,134 @@
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-top: 1px solid var(--completed-task);
+  border-bottom: 1px solid var(--completed-task);
+  height: 3em;
+  padding: 2em 1.5em;
+  position: relative;
+  gap: 1em;
+
+  input {
+    display: none;
+  }
+
+  p {
+    position: relative;
+    max-width: 75%;
+    div {
+      display: none;
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translate(0, -50%) scaleX(0);
+      width: 100%;
+      height: 0.1em;
+      background-color: var(--completed-task);
+      transform-origin: left;
+      transition: all 0.3s ease;
+    }
+  }
+
+
+  .dragHandle {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing !important;
+    }
+  }
+  & > div:last-child {
+    cursor: pointer;
+    position: absolute;
+    left: 90%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  label {
+    position: relative;
+    cursor: pointer;
+    div {
+      width: 1.5em;
+      height: 1.5em;
+      border: 1px solid var(--completed-task);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #57ddff, #c058f3);
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+    }
+
+    svg {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      opacity: 0;
+    }
+  }
+
+  &:has(input:checked) {
+    color: var(--completed-task);
+    text-decoration: line-through;
+    p div {
+      transform: translate(0, -50%) scaleX(1);
+    }
+    label {
+      div {
+        position: relative;
+        z-index: 0;
+        border: transparent;
+        overflow: hidden;
+
+        &::after {
+          opacity: 1;
+        }
+      }
+      svg {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+//Extra extra large devices (larger desktops, 1400px and up)
+@media screen and (min-width: 87.5em) {
+  .task {
+    p {
+      div {
+        display: block;
+      }
+    }
+    &:has(input:checked) {
+      text-decoration: none;
+    }
+  }
+}
+
+/* Enable hover only on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .task label:hover div {
+    border-top: 1px solid #57ddff;
+    border-left: 1px solid #57ddff98;
+    border-bottom: 1px solid #c058f3;
+    border-right: 1px solid #bf58f394;
+  }
+
+  .task > div:last-child svg {
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+}
