@@ -3,7 +3,7 @@
 import style from "./header.module.scss";
 import MoonIcon from "@/svg/moon";
 import SunIcon from "@/svg/sun";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PlayAudio from "@/utils/playAudio";
 import { AudioContext } from "../audio/audio";
 
@@ -12,10 +12,7 @@ export default function Header() {
 
     
     // Initialize darkMode based on the stored color scheme in localStorage
-    const [darkMode, setDarkMode] = useState<boolean>(() => {
-        if(typeof window === 'undefined') return false;
-        return localStorage.getItem('colorScheme') === 'dark';
-    });
+    const [darkMode, setDarkMode] = useState<boolean>(false)
 
     const toggleColorScheme = () => {
         const newDarkMode = !darkMode;
@@ -28,6 +25,12 @@ export default function Header() {
         if (audio) PlayAudio('../color-scheme-sound.wav');
     
     };
+
+    useEffect(() => {
+        // Only run on the client side
+        const storedColorScheme = typeof window !== 'undefined' ? localStorage.getItem('colorScheme') : null;
+        setDarkMode(storedColorScheme === 'dark');
+    }, []);
 
     return (
         <header className={style.header}>

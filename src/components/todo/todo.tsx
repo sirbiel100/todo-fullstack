@@ -2,15 +2,16 @@
 import { TodoItem } from '@/types/todoInterface';
 import { AudioContext } from '../audio/audio';
 import { useContext, useEffect, useState } from 'react';
-import { arrayMove  } from '@dnd-kit/sortable';
+import { arrayMove } from '@dnd-kit/sortable';
 import { closestCenter, DndContext, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import List from '../list/list';
 import style from './todo.module.scss';
 import PlayAudio from '@/utils/playAudio';
+import { supabase } from '@/app/lib/supabase';
 
 
 export default function ToDo() {
-    const [data, setData] = useState<TodoItem[]>([])
+    const [listData, setListData] = useState<TodoItem[]>([])
     const [inputValue, setInputValue] = useState<string>('')
     const [isChecked, setIsChecked] = useState<boolean>(false)
     const [filter, setFilter] = useState<{ active: boolean; completed: boolean }>({
@@ -18,39 +19,43 @@ export default function ToDo() {
         completed: false
     })
     const [isDragging, setIsDragging] = useState<boolean>(false)
-    const AllCheckedItems = data.filter(e => e.checked).map(e => e.id)
+    const AllCheckedItems = listData.filter(e => e.checked).map(e => e.id)
     const audio = useContext(AudioContext)
 
     const postRequest = async () => {
 
         if (!inputValue) return alert('Please enter a value')
 
-        const res = await fetch('./api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
+        const { data, error } = await supabase
+            .from("list")
+            .insert({
                 id: Date.now(),
                 value: inputValue,
                 checked: false,
-                position: Date.now() / 1000
+                position: Math.floor(Date.now() / 1000)
             })
-        })
+            .select("*")
+            .order('position', { ascending: true })
 
-        if (!res.ok) {
+
+        if (error) {
             // Handle HTTP errors
-            const errorData = await res.json();
-            console.error("Server Error:", errorData.message);
+            console.error("Server Error:", error);
             return;
         }
 
-        const newData = await res.json();
-        console.log("Response Data:", newData);
+        if (!data) return console.error("Data is null")
+
+        console.log("Response Data:", data);
 
         // Refetch data from database after adding new item
-        const updatedData = await fetch('./api').then(res => res.json());
-        setData(updatedData);
+
+        const { data: listData, error: fetchError } = await supabase.from("list").select("*");
+        if (fetchError) {
+            console.error("Error fetching data:", fetchError);
+            return;
+        }
+        setListData(listData || []);
         setInputValue(''); // Reset input field
 
         if (audio) PlayAudio("../adding_pop.wav", 0, 0.7)
@@ -58,17 +63,24 @@ export default function ToDo() {
 
     const deleteRequest = async (id: string | string[]) => {
 
-        const res = await fetch('./api', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id })
-        });
+        let response;
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            console.error("Delete Error:", errorData.message);
+        if (Array.isArray(id)) {
+            // Use .in() for multiple IDs
+            response = await supabase
+                .from('list')
+                .delete()
+                .in('id', id);
+        } else {
+            // Use .eq() for a single ID
+            response = await supabase
+                .from('list')
+                .delete()
+                .eq('id', id);
+        }
+
+        if (response.error) {
+            console.error("Delete Error:", response);
             return;
         }
 
@@ -78,30 +90,26 @@ export default function ToDo() {
         if (Array.isArray(id)) {
             // Filter out multiple items if `id` is an array
             console.log('Deleted multiple items:', id);
-            setData((prevData) => prevData.filter((item) => !id.includes(item.id)));
+            setListData((prevData) => prevData.filter((item) => !id.includes(item.id)));
         } else {
             // Filter out a single item if `id` is a string
-            setData((prevData) => prevData.filter((item) => item.id !== id));
+            setListData((prevData) => prevData.filter((item) => item.id !== id));
         }
     };
 
     const changeCheckedStatusOnDatabase = async (id: string, checked: boolean) => {
         setIsChecked(!isChecked)
-        const res = await fetch('./api', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id, checked: !checked })
-        })
+        const { error } = await supabase
+            .from('list')
+            .update({ checked: !checked })
+            .eq('id', id)
 
-        if (!res.ok) {
-            const errorData = await res.json();
-            console.error("Delete Error:", errorData.message);
+        if (error) {
+            console.error("Delete Error:", error.message);
             return;
         }
 
-        setData((prevData) =>
+        setListData((prevData) =>
             prevData.map(item =>
                 item.id === id ? { ...item, checked: !checked } : item
             )
@@ -113,9 +121,15 @@ export default function ToDo() {
 
     useEffect(() => {
         const fecthData = async () => {
-            const res = await fetch('./api').then(res => res.json())
-            console.log(res)
-            setData(res)
+            const { data, error } = await supabase
+                .from("list")
+                .select("*")
+                .order('position', { ascending: true })
+            if (data) {
+                setListData(data);
+            } else {
+                console.error("Error fetching data: data is null: ", error);
+            }
         }
         fecthData()
     }, [])
@@ -123,11 +137,11 @@ export default function ToDo() {
     const handleDragEnd = (event: DragEndEvent) => {
         setTimeout(() => setIsDragging(false), 500)
         const { active, over } = event
-        const getTaskPos = (id: string) => data.findIndex(e => e.id === id)
+        const getTaskPos = (id: string) => listData.findIndex(e => e.id === id)
 
         if (!over || active.id === over.id) return
 
-        setData(prevData => {
+        setListData(prevData => {
             const originalIndex = getTaskPos(active.id as string)
             const newIndex = getTaskPos(over.id as string)
             const reorderedItems = arrayMove(prevData, originalIndex, newIndex);
@@ -150,13 +164,18 @@ export default function ToDo() {
     const updatePositionsInDatabase = async (orderedItems: TodoItem[]) => {
         const positions = orderedItems.map((item, index) => ({ id: item.id, position: index }));
 
-        await fetch('./api', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ positions })
-        });
+        for (const { id, position } of positions) {
+            const { error } = await supabase
+                .from('list')
+                .update({ position })
+                .eq('id', id);
+    
+            if (error) {
+                console.error("Update Error:", error.message);
+                return;
+            }
+        }
+        
     };
 
     const playAudioOnHover = () => {
@@ -190,8 +209,8 @@ export default function ToDo() {
                 <ul>
                     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd} onDragStart={handleDragStart} sensors={sensors}>
                         <List
-                            tasks={data}
-                            key={data.map(e => e.id).join('')}
+                            tasks={listData}
+                            key={listData.map(e => e.id).join('')}
                             changeChecked={(id: string, checked: boolean) => changeCheckedStatusOnDatabase(id, checked)}
                             deleteRequest={(id: string) => deleteRequest(id)}
                             filter={filter}
@@ -202,7 +221,7 @@ export default function ToDo() {
 
                 <section>
                     <div>
-                        <p><span>{data.filter(item => !item.checked).length}</span> items left</p>
+                        <p><span>{listData.filter(item => !item.checked).length}</span> items left</p>
                         <ul>
                             <li onClick={() => { setFilter({ ...filter, completed: false, active: false }) }}>All</li>
                             <li onClick={() => { setFilter({ ...filter, completed: false, active: true }) }}>Active</li>
