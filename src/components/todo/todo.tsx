@@ -25,7 +25,7 @@ export default function ToDo() {
     const postRequest = async (currentListData: TodoItem[]) => {
 
         if (!inputValue) return alert('Please enter a value')
-        if (currentListData.length > 49) return alert('You have reached the maximum number of items');
+        if (currentListData.length > 19) return alert('You have reached the maximum number of items');
 
         const { data, error } = await supabase
             .from("list")
@@ -135,17 +135,6 @@ export default function ToDo() {
 
         fetchData()
 
-       // Set up real-time subscription with the new syntax
-    const channel = supabase.channel('list-changes')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'list' }, () => fetchData())
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'list' }, () => fetchData())
-        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'list' }, () => fetchData())
-        .subscribe();
-
-    // Clean up subscription on unmount
-    return () => {
-        supabase.removeChannel(channel);
-    };
     }, [])
 
     const handleDragEnd = (event: DragEndEvent) => {
