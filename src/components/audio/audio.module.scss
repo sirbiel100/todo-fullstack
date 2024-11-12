@@ -3,10 +3,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
+    position: fixed;
     left: 100%;
-    top: 2%;
-    transform: translate(-150%, 0);
+    top: 100%;
+    transform: translate(-150%, -150%);
     width: 2em;
     height: 2em;
     border-radius: 50%;
@@ -19,5 +19,21 @@
         height: auto;
         object-fit: contain;
         filter: invert(10) grayscale(0.5) brightness(0.5);
+    }
+}
+
+@media screen and (min-width: 62em){
+    .audioStyle{
+        position: absolute;
+        left: 100%;
+        top: 2%;
+        transform: translate(-150%, 0);
+        
+        svg{
+            width: 1em;
+            height: auto;
+            object-fit: contain;
+            filter: invert(10) grayscale(0.5) brightness(0.5);
+        }
     }
 }

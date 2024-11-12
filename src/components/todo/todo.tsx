@@ -22,9 +22,10 @@ export default function ToDo() {
     const AllCheckedItems = listData.filter(e => e.checked).map(e => e.id)
     const audio = useContext(AudioContext)
 
-    const postRequest = async () => {
+    const postRequest = async (currentListData: TodoItem[]) => {
 
         if (!inputValue) return alert('Please enter a value')
+        if (currentListData.length > 49) return alert('You have reached the maximum number of items');
 
         const { data, error } = await supabase
             .from("list")
@@ -120,7 +121,7 @@ export default function ToDo() {
     }
 
     useEffect(() => {
-        const fecthData = async () => {
+        const fetchData = async () => {
             const { data, error } = await supabase
                 .from("list")
                 .select("*")
@@ -131,7 +132,20 @@ export default function ToDo() {
                 console.error("Error fetching data: data is null: ", error);
             }
         }
-        fecthData()
+
+        fetchData()
+
+       // Set up real-time subscription with the new syntax
+    const channel = supabase.channel('list-changes')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'list' }, () => fetchData())
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'list' }, () => fetchData())
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'list' }, () => fetchData())
+        .subscribe();
+
+    // Clean up subscription on unmount
+    return () => {
+        supabase.removeChannel(channel);
+    };
     }, [])
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -169,13 +183,13 @@ export default function ToDo() {
                 .from('list')
                 .update({ position })
                 .eq('id', id);
-    
+
             if (error) {
                 console.error("Update Error:", error.message);
                 return;
             }
         }
-        
+
     };
 
     const playAudioOnHover = () => {
@@ -194,13 +208,13 @@ export default function ToDo() {
         <section className={style.todoSection}>
 
             <header>
-                <div onClick={postRequest}></div>
+                <div onClick={() => postRequest(listData)}></div>
                 <input
                     type="text"
                     placeholder='Create a new todo...'
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    onKeyUp={(e) => e.key === 'Enter' && postRequest()}
+                    onKeyUp={(e) => e.key === 'Enter' && postRequest(listData)}
                 />
             </header>
 
