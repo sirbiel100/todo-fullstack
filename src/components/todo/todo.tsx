@@ -64,6 +64,8 @@ export default function ToDo() {
 
     const deleteRequest = async (id: string | string[]) => {
 
+        if(!id || id.length == 0 ) return alert('Please select an item to delete')
+
         let response;
 
         if (Array.isArray(id)) {
