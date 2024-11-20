@@ -1,14 +1,11 @@
 .hide {
-  transform: scale(0);
-  background-color: var(--completed-task);
-  transition: color 0.3s, transform 0.3s ease;
-  transform-origin: right center;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s ease;
 }
 
 .list {
-  transform: scale(1);
-  transition: color 0.3s, transform 0.3s ease;
-  transform-origin: left center;
+  opacity: 1;
+  transition: opacity 0.3s, transform 0.3s ease;
   touch-action: none;
   cursor: default;
 }

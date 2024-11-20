@@ -19,6 +19,7 @@ export default function ToDo() {
         completed: false
     })
     const [isDragging, setIsDragging] = useState<boolean>(false)
+    const [loadingCursor, setLoadingCursor] = useState<boolean>(false)
     const AllCheckedItems = listData.filter(e => e.checked).map(e => e.id)
     const audio = useContext(AudioContext)
 
@@ -26,6 +27,11 @@ export default function ToDo() {
 
         if (!inputValue) return alert('Please enter a value')
         if (currentListData.length > 19) return alert('You have reached the maximum number of items');
+
+        setLoadingCursor(true)
+        setTimeout(() => {
+            setLoadingCursor(false)
+        }, 1000)
 
         const { data, error } = await supabase
             .from("list")
@@ -196,7 +202,7 @@ export default function ToDo() {
 
 
     return (
-        <section className={style.todoSection}>
+        <section className={style.todoSection} style={{cursor: loadingCursor ? "progress" : ""}}>
 
             <header>
                 <div onClick={() => postRequest(listData)}></div>
@@ -206,6 +212,7 @@ export default function ToDo() {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyUp={(e) => e.key === 'Enter' && postRequest(listData)}
+                    style={{cursor: loadingCursor ? "progress" : ""}}
                 />
             </header>
 
@@ -228,9 +235,9 @@ export default function ToDo() {
                     <div>
                         <p><span>{listData.filter(item => !item.checked).length}</span> items left</p>
                         <ul>
-                            <li onClick={() => { setFilter({ ...filter, completed: false, active: false }) }}>All</li>
-                            <li onClick={() => { setFilter({ ...filter, completed: false, active: true }) }}>Active</li>
-                            <li onClick={() => { setFilter({ ...filter, completed: true, active: false }) }}>Completed</li>
+                            <li onClick={() => { setFilter({ ...filter, completed: false, active: false }) }} style={{color: !filter.active && !filter.completed ? "#3a7bfd" : ""}}>All</li>
+                            <li onClick={() => { setFilter({ ...filter, completed: false, active: true }) }} style={{color: filter.active && !filter.completed ? "#3a7bfd" : ""}}>Active</li>
+                            <li onClick={() => { setFilter({ ...filter, completed: true, active: false }) }} style={{color: !filter.active && filter.completed ? "#3a7bfd" : ""}}>Completed</li>
                         </ul>
                         <button onClick={() => deleteRequest(AllCheckedItems)}>Clear Completed</button>
                     </div>

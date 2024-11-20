@@ -99,9 +99,7 @@
         border-radius: 0.25em;
         li {
           cursor: pointer;
-          &:first-child {
-            color: var(--showAll-color) !important;
-          }
+          transition: color 0.2s ease-in-out;
         }
       }
     }

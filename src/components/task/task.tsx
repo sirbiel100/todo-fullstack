@@ -29,7 +29,7 @@ export default function Task({ id, value, checked, deleteRequest, changeChecked 
                 <div></div>
                 <CheckIcon />
             </label>
-            <p>{value} <div></div></p>
+            <p>{value}</p>
             <div onClick={() => deleteRequest(id)}>
                 <CrossIcon />
             </div>
