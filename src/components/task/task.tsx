@@ -15,7 +15,7 @@ export default function Task({ id, value, checked, deleteRequest, changeChecked 
     return (
         <div ref={setNodeRef} {...attributes} style={transitionStyle} className={style.task}>
             <div {...listeners} className={style.dragHandle}> {/* Only this part is draggable */}
-                <span>⠿</span> {/* Or any icon you prefer as a drag handle */}
+                <span>⠿</span>
             </div>
             <input
                 type="checkbox"
